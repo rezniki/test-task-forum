@@ -1,46 +1,56 @@
 import React from "react";
 import type { Post } from "../types/post";
-import { Link } from "react-router-dom";
 
 interface Props {
     post: Post;
-    onLike: (id: number) => void;
-    onDislike: (id: number) => void;
-    onFavorite: (id: number) => void;
-    onDelete: (id: number) => void;
+    likes: number;
+    isFavorite: boolean;
+    onLike: () => void;
+    onDislike: () => void;
+    onToggleFavorite: () => void;
+    onDelete: () => void;
 }
 
-const PostCard: React.FC<Props> = ({ post, onLike, onDislike, onFavorite, onDelete }) => {
+const PostCard: React.FC<Props> = ({
+    post,
+    likes,
+    isFavorite,
+    onLike,
+    onDislike,
+    onToggleFavorite,
+    onDelete,
+    }) => {
     return (
-        <div className="border rounded p-4 shadow bg-white">
-        <Link to={`/post/${post.id}`}>
-            <h2 className="text-xl font-bold mb-2">{post.title}</h2>
-        </Link>
-        <p className="text-gray-700 mb-4">{post.body}</p>
-        <div className="flex gap-3">
+        <div className="p-4 border rounded-lg shadow-sm bg-white">
+        <h2 className="text-xl font-semibold">{post.title}</h2>
+        <p className="text-gray-700 mt-2">{post.body}</p>
+
+        <div className="flex items-center gap-4 mt-4">
             <button
-            className={`px-3 py-1 rounded ${post.liked ? "bg-green-500 text-white" : "bg-gray-200"}`}
-            onClick={() => onLike(post.id)}
+            onClick={onLike}
+            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
             >
-            👍
+            👍 {likes}
             </button>
             <button
-            className={`px-3 py-1 rounded ${post.disliked ? "bg-red-500 text-white" : "bg-gray-200"}`}
-            onClick={() => onDislike(post.id)}
+            onClick={onDislike}
+            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
             >
             👎
             </button>
             <button
-            className={`px-3 py-1 rounded ${post.favorite ? "bg-yellow-500 text-white" : "bg-gray-200"}`}
-            onClick={() => onFavorite(post.id)}
+            onClick={onToggleFavorite}
+            className={`px-3 py-1 rounded ${
+                isFavorite ? "bg-yellow-400" : "bg-gray-300"
+            }`}
             >
-            ⭐
+            ⭐ {isFavorite ? "В избранном" : "В избранное"}
             </button>
             <button
-            className="px-3 py-1 rounded bg-gray-300"
-            onClick={() => onDelete(post.id)}
+            onClick={onDelete}
+            className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
             >
-            🗑
+            🗑 Удалить
             </button>
         </div>
         </div>

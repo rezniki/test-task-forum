@@ -1,68 +1,109 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import axios from "axios";
 import type { Post } from "../types/post";
-import type { Comment } from "../types/comment";
+import type { User } from "../types/user";
+import UserFilter from "../components/UserFilter";
+import PostForm from "../components/PostForm";
+import PostCard from "../components/PostCard";
 
-export default function PostPage() {
-    const { id } = useParams<{ id: string }>();
-    const [post, setPost] = useState<Post | null>(null);
-    const [comments, setComments] = useState<Comment[]>([]);
-    const [newComment, setNewComment] = useState("");
+const PostsPage: React.FC = () => {
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+    const [favorites, setFavorites] = useState<number[]>([]);
+    const [likes, setLikes] = useState<Record<number, number>>({});
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!id) return;
-        axios.get<Post>(`https://jsonplaceholder.typicode.com/posts/${id}`)
-        .then(res => setPost(res.data));
-
-        axios.get<Comment[]>(`https://jsonplaceholder.typicode.com/posts/${id}/comments`)
-        .then(res => setComments(res.data));
-    }, [id]);
-
-    const addComment = () => {
-        if (!newComment.trim()) return;
-        const comment: Comment = {
-        id: Date.now(),
-        postId: Number(id),
-        name: "You",
-        email: "you@example.com",
-        body: newComment
+        const fetchData = async () => {
+        try {
+            const postsRes = await fetch("https://jsonplaceholder.typicode.com/posts");
+            const usersRes = await fetch("https://jsonplaceholder.typicode.com/users");
+            const postsData: Post[] = await postsRes.json();
+            const usersData: User[] = await usersRes.json();
+            setPosts(postsData);
+            setUsers(usersData);
+        } catch (err) {
+            console.error("Ошибка загрузки данных:", err);
+        } finally {
+            setLoading(false);
+        }
         };
-        setComments(prev => [...prev, comment]);
-        setNewComment("");
+
+        fetchData();
+    }, []);
+
+    const handleCreatePost = (newPost: Omit<Post, "id">) => {
+        const postWithId: Post = {
+        ...newPost,
+        id: posts.length ? posts[posts.length - 1].id + 1 : 1,
+        };
+        setPosts((prev) => [postWithId, ...prev]);
     };
 
-    if (!post) return <p>Loading...</p>;
+    const handleDeletePost = (id: number) => {
+        setPosts((prev) => prev.filter((post) => post.id !== id));
+        setFavorites((prev) => prev.filter((favId) => favId !== id));
+        const newLikes = { ...likes };
+        delete newLikes[id];
+        setLikes(newLikes);
+    };
+
+    const handleLike = (id: number) => {
+        setLikes((prev) => ({
+        ...prev,
+        [id]: (prev[id] || 0) + 1,
+        }));
+    };
+
+    const handleDislike = (id: number) => {
+        setLikes((prev) => ({
+        ...prev,
+        [id]: (prev[id] || 0) - 1,
+        }));
+    };
+
+    const handleToggleFavorite = (id: number) => {
+        setFavorites((prev) =>
+        prev.includes(id) ? prev.filter((favId) => favId !== id) : [...prev, id]
+        );
+    };
+
+    const filteredPosts = selectedUserId
+        ? posts.filter((post) => post.userId === selectedUserId)
+        : posts;
+
+    if (loading) {
+        return <div className="p-6 text-center">Загрузка...</div>;
+    }
 
     return (
-        <div className="p-4">
-        <Link to="/" className="text-blue-500 underline">← Back</Link>
-        <h1 className="text-2xl font-bold mb-2">{post.title}</h1>
-        <p className="mb-4">{post.body}</p>
+        <div className="p-6 max-w-5xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Форум</h1>
 
-        <h2 className="text-xl font-semibold mb-2">Comments</h2>
-        <div className="space-y-2 mb-4">
-            {comments.map(c => (
-            <div key={c.id} className="border p-2 rounded bg-gray-50">
-                <p className="text-sm text-gray-600">{c.name} ({c.email})</p>
-                <p>{c.body}</p>
-            </div>
+        <UserFilter
+            users={users}
+            selectedUserId={selectedUserId}
+            onChange={setSelectedUserId}
+        />
+
+        <PostForm onSubmit={handleCreatePost} />
+
+        <div className="mt-8 space-y-4">
+            {filteredPosts.map((post) => (
+            <PostCard
+                key={post.id}
+                post={post}
+                likes={likes[post.id] || 0}
+                isFavorite={favorites.includes(post.id)}
+                onLike={() => handleLike(post.id)}
+                onDislike={() => handleDislike(post.id)}
+                onToggleFavorite={() => handleToggleFavorite(post.id)}
+                onDelete={() => handleDeletePost(post.id)}
+            />
             ))}
         </div>
-
-        <textarea
-            className="border p-2 w-full mb-2"
-            rows={3}
-            placeholder="Write a comment..."
-            value={newComment}
-            onChange={e => setNewComment(e.target.value)}
-        />
-        <button
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-            onClick={addComment}
-        >
-            Add Comment
-        </button>
         </div>
     );
-}
+};
+
+export default PostsPage;
