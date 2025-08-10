@@ -1,23 +1,22 @@
 import React from "react";
 import type { User } from "../types/user";
 
-type UserFilterProps = {
+interface UserFilterProps {
     users: User[];
     selectedUserId: number | null;
     onChange: (userId: number | null) => void;
-};
+}
 
 const UserFilter: React.FC<UserFilterProps> = ({ users, selectedUserId, onChange }) => {
     return (
         <div className="mb-4">
-        <label className="block mb-2 font-semibold">Фильтр по пользователю:</label>
         <select
             value={selectedUserId ?? ""}
             onChange={(e) => {
             const value = e.target.value;
             onChange(value ? Number(value) : null);
             }}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
+            className="border border-gray-300 rounded p-2 w-full"
         >
             <option value="">Все пользователи</option>
             {users.map((user) => (
