@@ -1,11 +1,17 @@
-import { Outlet } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import PostsPage from "./pages/PostPage";
+import PostDetails from "./pages/PostDetails";
 
-export default function App() {
+function App() {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Navbar />
-      <Outlet />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<PostsPage />} />
+        <Route path="/posts/:id" element={<PostDetails />} />
+      </Routes>
+    </Router>
   );
 }
+
+export default App;
+
