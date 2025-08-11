@@ -1,54 +1,42 @@
-import React, { useState } from "react";
+import React from "react";
 import type { Post } from "../types/post";
 import { Link } from "react-router-dom";
 
-interface PostCardProps {
+interface Props {
     post: Post;
+    onLike: (id: number) => void;
+    onDislike: (id: number) => void;
+    onToggleFavorite: (id: number) => void;
     onDelete: (id: number) => void;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, onDelete }) => {
-    const [likes, setLikes] = useState(0);
-    const [dislikes, setDislikes] = useState(0);
-    const [isFavorite, setIsFavorite] = useState(false);
-
+const PostCard: React.FC<Props> = ({ post, onLike, onDislike, onToggleFavorite, onDelete }) => {
     return (
-        <div className="border p-4 rounded shadow-sm bg-white">
-        <Link to={`/posts/${post.id}`}>
-            <h3 className="text-lg font-bold mb-2">{post.title}</h3>
+        <div className="p-4 border rounded-lg shadow-sm bg-white">
+        <Link to={`/posts/${post.id}`} className="hover:underline">
+            <h2 className="text-lg font-semibold">{post.title}</h2>
         </Link>
-        <p className="mb-4">{post.body}</p>
+        <p className="text-gray-700 mt-2">{post.body}</p>
 
-        <div className="flex gap-4 mb-3">
-            <button
-            className="px-3 py-1 bg-green-500 text-white rounded"
-            onClick={() => setLikes(likes + 1)}
-            >
-            👍 {likes}
+        <div className="flex items-center gap-3 mt-4">
+            <button onClick={() => onLike(post.id)} className="px-3 py-1 bg-green-500 text-white rounded">
+            👍 {post.likes ?? 0}
+            </button>
+            <button onClick={() => onDislike(post.id)} className="px-3 py-1 bg-red-500 text-white rounded">
+            👎 {post.dislikes ?? 0}
             </button>
             <button
-            className="px-3 py-1 bg-red-500 text-white rounded"
-            onClick={() => setDislikes(dislikes + 1)}
+            onClick={() => onToggleFavorite(post.id)}
+            className={`px-3 py-1 rounded ${post.isFavorite ? "bg-yellow-400" : "bg-gray-300"}`}
             >
-            👎 {dislikes}
+            ⭐ {post.isFavorite ? "В избранном" : "В избранное"}
             </button>
-            <button
-            className={`px-3 py-1 rounded ${isFavorite ? "bg-yellow-500" : "bg-gray-300"}`}
-            onClick={() => setIsFavorite(!isFavorite)}
-            >
-            ⭐ {isFavorite ? "В избранном" : "В избранное"}
+            <button onClick={() => onDelete(post.id)} className="ml-auto px-3 py-1 bg-gray-500 text-white rounded">
+            🗑 Удалить
             </button>
         </div>
-
-        <button
-            onClick={() => onDelete(post.id)}
-            className="px-3 py-1 bg-gray-500 text-white rounded"
-        >
-            Удалить
-        </button>
         </div>
     );
 };
 
 export default PostCard;
-

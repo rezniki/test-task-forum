@@ -1,32 +1,26 @@
 import React from "react";
 import type { User } from "../types/user";
 
-interface UserFilterProps {
+interface Props {
     users: User[];
     selectedUserId: number | null;
-    onChange: (userId: number | null) => void;
+    onChange: (id: number | null) => void;
 }
 
-const UserFilter: React.FC<UserFilterProps> = ({ users, selectedUserId, onChange }) => {
+const UserFilter: React.FC<Props> = ({ users, selectedUserId, onChange }) => {
     return (
         <div className="mb-4">
         <select
             value={selectedUserId ?? ""}
-            onChange={(e) => {
-            const value = e.target.value;
-            onChange(value ? Number(value) : null);
-            }}
-            className="border border-gray-300 rounded p-2 w-full"
+            onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
+            className="border p-2 rounded w-full"
         >
             <option value="">Все пользователи</option>
-            {users.map((user) => (
-            <option key={user.id} value={user.id}>
-                {user.name}
-            </option>
-            ))}
+            {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
         </select>
         </div>
     );
 };
 
 export default UserFilter;
+

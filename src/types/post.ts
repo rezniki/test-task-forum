@@ -3,7 +3,7 @@ export interface Post {
     userId: number;
     title: string;
     body: string;
-    liked?: boolean;
-    disliked?: boolean;
-    favorite?: boolean;
+    likes?: number;
+    dislikes?: number;
+    isFavorite?: boolean;
 }
