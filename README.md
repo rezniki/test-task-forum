@@ -37,10 +37,10 @@
 
 ```bash
 # Клонировать репозиторий
-git clone https://github.com/<ВАШ-ЛОГИН>/<ИМЯ-РЕПОЗИТОРИЯ>.git
+git clone https://github.com/<rezniki>/<test-task-forum>.git
 
 # Перейти в папку проекта
-cd <ИМЯ-РЕПОЗИТОРИЯ>
+cd forum-app
 
 # Установить зависимости
 npm install
